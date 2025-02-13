@@ -341,10 +341,14 @@
             gaugeFill.style.transform = `rotate(${rotation}turn)`;
         }
 
-        const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-        const CHARACTERISTIC_UUID_RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-        const CHARACTERISTIC_UUID_TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-        let bleDevice = null, server = null, rxCharacteristic = null, txCharacteristic = null;
+       const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+        const CHARACTERISTIC_UUID_RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; 
+        const CHARACTERISTIC_UUID_TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; 
+
+        let bleDevice = null;
+        let server = null;
+        let rxCharacteristic = null;
+        let txCharacteristic = null;
 
         async function connectBLE() {
             try {
@@ -352,14 +356,17 @@
                     acceptAllDevices: true,
                     optionalServices: [SERVICE_UUID]
                 });
+
                 document.getElementById("status").textContent = "Status: Connecting...";
                 server = await bleDevice.gatt.connect();
+
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 rxCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_RX);
                 txCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_TX);
 
                 await txCharacteristic.startNotifications();
                 txCharacteristic.addEventListener("characteristicvaluechanged", handleNotifications);
+
                 document.getElementById("status").textContent = "Status: Connected!";
                 document.getElementById("commandInput").disabled = false;
                 document.getElementById("sendCommand").disabled = false;
@@ -368,22 +375,43 @@
                 document.getElementById("liveTrigger").disabled = false;
 
                 bleDevice.addEventListener("gattserverdisconnected", onDisconnected);
+
             } catch (error) {
                 alert("Failed to connect: " + error.message);
                 document.getElementById("status").textContent = "Status: Connection Failed";
             }
         }
 
+        async function sendCommand(command) {
+            if (!rxCharacteristic) return alert("Not connected!");
+
+            try {
+                let encoder = new TextEncoder().encode(command);
+                await rxCharacteristic.writeValue(encoder);
+            } catch (error) {
+                console.error("❌ Send Error:", error);
+            }
+        }
+
         function handleNotifications(event) {
             let value = new TextDecoder().decode(event.target.value);
-            let match = value.match(/Live=([\d.]+),([\d.]+)/);
+            let logDiv = document.getElementById("log");
+            let logEntry = document.createElement("div");
+            logEntry.textContent = value;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+
+            processLiveData(value);
+        }
+
+        function processLiveData(data) {
+            let match = data.match(/Live=([\d.]+),([\d.]+)/);
             if (match) {
                 let temperature = parseFloat(match[1]);
                 let humidity = parseFloat(match[2]);
-                document.getElementById("temperatureValue").textContent = temperature + "°C";
+
+                document.getElementById("tempValue").textContent = temperature + "°C";
                 document.getElementById("humidityValue").textContent = humidity + "%";
-                setGaugeValue(document.getElementById("temperatureFill"), temperature);
-                setGaugeValue(document.getElementById("humidityFill"), humidity);
             }
         }
 
@@ -401,12 +429,17 @@
             document.getElementById("connectBtn").disabled = false;
             document.getElementById("disconnectBtn").disabled = true;
             document.getElementById("liveTrigger").disabled = true;
-            document.getElementById("temperatureValue").textContent = "--°C";
+
+            document.getElementById("tempValue").textContent = "--°C";
             document.getElementById("humidityValue").textContent = "--%";
         }
 
         document.getElementById("connectBtn").addEventListener("click", connectBLE);
         document.getElementById("disconnectBtn").addEventListener("click", disconnectBLE);
+        document.getElementById("sendCommand").addEventListener("click", () => {
+            let command = document.getElementById("commandInput").value.trim();
+            if (command) sendCommand(command);
+        });
         document.getElementById("liveTrigger").addEventListener("click", () => sendCommand("@live=100"));
     </script>
 </body>
