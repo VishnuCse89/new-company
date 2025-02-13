@@ -3,74 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth Arduino Control</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        button {
-            padding: 10px;
-            margin: 10px;
-            font-size: 16px;
-        }
-        #status {
-            margin-top: 20px;
-            font-size: 18px;
-            color: green;
-        }
-    </style>
+    <title>Dashboard</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <style>/* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0e0;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+        
+        .logo img {
+            height: 40px;
+            vertical-align: middle;
+        }
+        
+        .logo span {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+        
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            color: white;
+            right: -250px; /* Start off-screen to the right */
+            background-color: #222;
+            padding-top: 30px;
+            transition: 0.3s;
+            z-index: 1000; /* Ensure sidebar is above other content */
+        }
+        .sidebar div{
+            color: white;
+            width: 100%;
+            /* padding-right:40px; */
+            /* background-color: red; */
+            display: flex;
+            justify-content: flex-end;
+        }
+        .sidebar h1{
+         display: flex;
+          justify-content: center;
+        }
+        .drop-btn{
+            width: 100%;
+            background-color: rgb(92, 91, 91);
+            color: white;
+            border: none;
+            font-size: large;
+            padding: 10px 0px;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        
+        }
+        .config-container{
+            display: flex;
+            max-height: 0;
+            overflow: hidden;
+            /* visibility: hidden; */
+            flex-direction: column;
+            background-color: #007bff;
+        }
+        .maxheight{
+            max-height:fit-content;
+            overflow-y: auto;
+        }
+        .config-container button{
+            border: none;
+            padding: 5px;
+            background-color: rgb(231, 228, 228);
+        }
+        .none{
+            display: none;
+        }
+        
+        .sidebar div i{
+            margin-right: 20px;
+        }
+        
+        
+        .sidebar a {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background-color: #444;
+        }
+        
+        .sidebar.active {
+            right: 0; /* Slide in from the right */
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-right: 0;
+            padding: 20px;
+            transition: 0.3s;
+        }
+        
+        /* Buttons Styles */
+        .buttons {
+            margin-bottom: 20px;
+            padding: 0px 10px;
+            display: flex; justify-content: space-between
+            ;
+        }
+        
+        .buttons button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Speedometer Gauge Styles */
+        .gauges {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        
+        .gauge {
+            text-align: center;
+            width: 150px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+        
+        }
+        
+        .gauge__body {
+            width: 100%;
+            height: 75px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 75px 75px 0 0;
+            background-color: #e0e0e0;
+        }
+        
+        .gauge__fill {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            transform-origin: center top;
+            transform: rotate(0.25turn);
+            transition: transform 0.5s ease-out;
+        }
+        
+        .gauge__cover {
+            width: 75%;
+            height: 150%;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .gauge span {
+            display: block;
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .gauge span:first-of-type {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        input {
+            width: 90%;
+            max-width: 250px;
+            padding: 8px;
+            margin: 8px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #1E1E1E;
+            color: white;
+        }
+        
+        #sendCommand {
+  --green: #1BFD9C;
+  font-size: 15px;
+  padding: 0.7em 2.7em;
+  letter-spacing: 0.06em;
+  position: relative;
+  font-family: inherit;
+  border-radius: 0.6em;
+  overflow: hidden;
+  transition: all 0.3s;
+  line-height: 1.4em;
+  border: 2px solid var(--green);
+  background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%,transparent 60% , rgba(27, 253, 156, 0.1) 100%);
+  color: var(--green);
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+}
 
-    <h2>Bluetooth Arduino Control</h2>
-    <button onclick="connectBluetooth()">Connect Bluetooth</button>
-    <button onclick="sendData('1')">Turn ON</button>
-    <button onclick="sendData('0')">Turn OFF</button>
-    <p id="status">Status: Not Connected</p>
-    <p>Received Data: <span id="receivedData">None</span></p>
+#sendCommand:hover {
+  color: #82ffc9;
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6), 0 0 9px 3px rgba(27, 253, 156, 0.2);
+}
+
+#sendCommand:before {
+  content: "";
+  position: absolute;
+  left: -4em;
+  width: 4em;
+  height: 100%;
+  top: 0;
+  transition: transform .4s ease-in-out;
+  background: linear-gradient(to right, transparent 1%, rgba(27, 253, 156, 0.1) 40%,rgba(27, 253, 156, 0.1) 60% , transparent 100%);
+}
+
+#sendCommand:hover:before {
+  transform: translateX(15em);
+}
+#log {
+            width: 90%;
+            max-width: 350px;
+            height: 120px;
+            border: 1px solid #555;
+            margin: 10px auto;
+            padding: 10px;
+            overflow-y: auto;
+            text-align: left;
+            background: #1E1E1E;
+            border-radius: 5px;
+        }
+        </style>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="aarislogo.jpg" alt="Logo">
+            <span>Aampal</span>
+        </div>
+        <div class="menu-icon" id="menuIcon">&#9776;</div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <i class="fa-solid fa-xmark" id="close"></i>
+        <h1>Options</h1>
+        <input type="text" id="commandInput" placeholder="Enter command" disabled>
+        <button id="sendCommand" disabled>Send</button>
+        <h3>Received Data:</h3>
+        <div id="log"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <p id="status">Status: Disconnected</p>
+        <div class="buttons">
+            
+            <button id="connectBtn">Connect</button>
+            <button id="disconnectBtn" disabled>Disconnect</button>
+            <button id="liveTrigger" disabled>Trigger @live=100</button>
+        </div>
+        <div class="gauges">
+            <div class="gauge">
+                <div class="gauge__body">
+                    <div class="gauge__fill" id="humidityFill"></div>
+                    <div class="gauge__cover"></div>
+                </div>
+                <span id="humidityValue">0</span>
+                <span>% Humidity</span>
+            </div>
+            <div class="gauge">
+                <div class="gauge__body">
+                    <div class="gauge__fill" id="temperatureFill"></div>
+                    <div class="gauge__cover"></div>
+                </div>
+                <span id="temperatureValue">0</span>
+                <span>°C Temperature</span>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let bluetoothDevice;
-        let characteristic;
+        document.getElementById('menuIcon').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+            const sidebar = document.getElementById("sidebar");
+            sidebar.style.width = sidebar.style.width === "100%" ? "0" : "100%";
+        });
+        document.getElementById('close').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+            const sidebar = document.getElementById("sidebar");
+            sidebar.style.width = sidebar.style.width === "0%" ? "0" : "0%";
+        });
 
-        async function connectBluetooth() {
+        function setGaugeValue(gaugeFill, value) {
+            let rotation = 0.5 * (value / 100);
+            gaugeFill.style.transform = `rotate(${rotation}turn)`;
+        }
+
+        const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+        const CHARACTERISTIC_UUID_RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+        const CHARACTERISTIC_UUID_TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+        let bleDevice = null, server = null, rxCharacteristic = null, txCharacteristic = null;
+
+        async function connectBLE() {
             try {
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                bleDevice = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb'] // Service UUID for HM-10
+                    optionalServices: [SERVICE_UUID]
                 });
+                document.getElementById("status").textContent = "Status: Connecting...";
+                server = await bleDevice.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                rxCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_RX);
+                txCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_TX);
 
-                const server = await bluetoothDevice.gatt.connect();
-                const service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-                characteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
+                await txCharacteristic.startNotifications();
+                txCharacteristic.addEventListener("characteristicvaluechanged", handleNotifications);
+                document.getElementById("status").textContent = "Status: Connected!";
+                document.getElementById("commandInput").disabled = false;
+                document.getElementById("sendCommand").disabled = false;
+                document.getElementById("connectBtn").disabled = true;
+                document.getElementById("disconnectBtn").disabled = false;
+                document.getElementById("liveTrigger").disabled = false;
 
-                document.getElementById("status").innerText = "Status: Connected ✅";
-
-                characteristic.addEventListener('characteristicvaluechanged', handleData);
-                await characteristic.startNotifications();
+                bleDevice.addEventListener("gattserverdisconnected", onDisconnected);
             } catch (error) {
-                console.error(error);
-                alert("Bluetooth connection failed!");
+                alert("Failed to connect: " + error.message);
+                document.getElementById("status").textContent = "Status: Connection Failed";
             }
         }
 
-        function sendData(data) {
-            if (!characteristic) {
-                alert("Not connected to Bluetooth!");
-                return;
+        function handleNotifications(event) {
+            let value = new TextDecoder().decode(event.target.value);
+            let match = value.match(/Live=([\d.]+),([\d.]+)/);
+            if (match) {
+                let temperature = parseFloat(match[1]);
+                let humidity = parseFloat(match[2]);
+                document.getElementById("temperatureValue").textContent = temperature + "°C";
+                document.getElementById("humidityValue").textContent = humidity + "%";
+                setGaugeValue(document.getElementById("temperatureFill"), temperature);
+                setGaugeValue(document.getElementById("humidityFill"), humidity);
             }
-            const encoder = new TextEncoder();
-            characteristic.writeValue(encoder.encode(data));
         }
 
-        function handleData(event) {
-            const decoder = new TextDecoder();
-            const receivedText = decoder.decode(event.target.value);
-            document.getElementById("receivedData").innerText = receivedText;
+        function disconnectBLE() {
+            if (!bleDevice) return;
+            if (bleDevice.gatt.connected) {
+                bleDevice.gatt.disconnect();
+            }
         }
+
+        function onDisconnected() {
+            document.getElementById("status").textContent = "Status: Disconnected";
+            document.getElementById("commandInput").disabled = true;
+            document.getElementById("sendCommand").disabled = true;
+            document.getElementById("connectBtn").disabled = false;
+            document.getElementById("disconnectBtn").disabled = true;
+            document.getElementById("liveTrigger").disabled = true;
+            document.getElementById("temperatureValue").textContent = "--°C";
+            document.getElementById("humidityValue").textContent = "--%";
+        }
+
+        document.getElementById("connectBtn").addEventListener("click", connectBLE);
+        document.getElementById("disconnectBtn").addEventListener("click", disconnectBLE);
+        document.getElementById("liveTrigger").addEventListener("click", () => sendCommand("@live=100"));
     </script>
-
 </body>
 </html>
