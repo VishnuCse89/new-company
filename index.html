@@ -410,12 +410,23 @@
             if (match) {
                 let temperature = parseFloat(match[1]);
                 let humidity = parseFloat(match[2]);
-
+                 const humidityGauge = document.querySelector('.gauges .gauge:first-child');
+                 const temperatureGauge = document.querySelector('.gauges .gauge:last-child');
+                  setGaugeValue(humidityGauge, humidity);
+                   setGaugeValue(temperatureGauge, temperature);
+    
                 document.getElementById("tempValue").textContent = temperature + "°C";
                 document.getElementById("humidityValue").textContent = humidity + "%";
             }
         }
-
+        function setGaugeValue(gauge, value) {
+        const fill = gauge.querySelector('.gauge__fill');
+        const valueSpan = gauge.querySelector('span:first-of-type');
+        const maxRotation = 0.5; // 180 degrees (0.5 turn)
+        const rotation = maxRotation * (value / 100); // Scale value to rotation
+        fill.style.transform = `rotate(${rotation}turn)`;
+        valueSpan.textContent = value;
+    }
         function disconnectBLE() {
             if (!bleDevice) return;
             if (bleDevice.gatt.connected) {
