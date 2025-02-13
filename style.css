@@ -1,0 +1,207 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e0e0e0;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+}
+
+.logo img {
+    height: 40px;
+    vertical-align: middle;
+}
+
+.logo span {
+    margin-left: 10px;
+    font-size: 20px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    color: white;
+    right: -250px; /* Start off-screen to the right */
+    background-color: #222;
+    padding-top: 30px;
+    transition: 0.3s;
+    z-index: 1000; /* Ensure sidebar is above other content */
+}
+.sidebar div{
+    color: white;
+    width: 100%;
+    /* padding-right:40px; */
+    /* background-color: red; */
+    display: flex;
+    justify-content: flex-end;
+}
+.sidebar h1{
+ display: flex;
+  justify-content: center;
+}
+.drop-btn{
+    width: 100%;
+    background-color: rgb(92, 91, 91);
+    color: white;
+    border: none;
+    font-size: large;
+    padding: 10px 0px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+
+}
+.config-container{
+    display: flex;
+    max-height: 0;
+    overflow: hidden;
+    /* visibility: hidden; */
+    flex-direction: column;
+    background-color: #007bff;
+}
+.maxheight{
+    max-height:fit-content;
+    overflow-y: auto;
+}
+.config-container button{
+    border: none;
+    padding: 5px;
+    background-color: rgb(231, 228, 228);
+}
+.none{
+    display: none;
+}
+
+.sidebar div i{
+    margin-right: 20px;
+}
+
+
+.sidebar a {
+    padding: 15px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #444;
+}
+
+.sidebar.active {
+    right: 0; /* Slide in from the right */
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-right: 0;
+    padding: 20px;
+    transition: 0.3s;
+}
+
+/* Buttons Styles */
+.buttons {
+    margin-bottom: 20px;
+    padding: 0px 40px;
+    display: flex; justify-content: space-between
+    ;
+}
+
+.buttons button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+.buttons button:hover {
+    background-color: #0056b3;
+}
+
+/* Speedometer Gauge Styles */
+.gauges {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.gauge {
+    text-align: center;
+    width: 150px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+
+}
+
+.gauge__body {
+    width: 100%;
+    height: 75px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 75px 75px 0 0;
+    background-color: #e0e0e0;
+}
+
+.gauge__fill {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    transform-origin: center top;
+    transform: rotate(0.25turn);
+    transition: transform 0.5s ease-out;
+}
+
+.gauge__cover {
+    width: 75%;
+    height: 150%;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.gauge span {
+    display: block;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.gauge span:first-of-type {
+    font-size: 24px;
+    font-weight: bold;
+}
